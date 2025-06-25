@@ -2,6 +2,7 @@
 
 require_relative 'shared/cli_utils'
 require_relative 'configs/less_config'
+require 'io/console'
 
 module LessTool
   def self.parse_options(args)
@@ -20,13 +21,35 @@ module LessTool
     exit 1
   end
 
-  def self.run_cli(argv)
-    _, filenames = parse_options(argv)
+  def self.paginate_content(content)
+
+    lines = content.lines
+    row = IO.console.winsize[0] - 1 # Subtract 1 for the prompt line
+    i = 0
+    while i < lines.size
+      system('clear')
+      puts lines[i, row]
+      puts "\n--More-- (q to quit)"
+      input = STDIN.getch
+      break if input == 'q' || input == 'Q'
+      i += row
+    end
+  end
+  
+  def self.run_cli(argv, test_mode: false)
+    options, args = parse_options(argv)
+    msg_for_args(args)
+
+    filenames = args
 
     CLIUtils.each_input_file(filenames) do |content, _filename|
-      puts content
-      # Here you would implement the actual less functionality
-      # For now, we just print the content
+      if options[:line_numbers]
+        content.lines.each_with_index do |line, index|
+          puts "\t#{index + 1}: #{line.chomp}"
+        end
+      else
+        puts content
+      end
     end
   end
 end

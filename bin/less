@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/less'
+
+LessTool.run_cli(ARGV) if __FILE__ == $PROGRAM_NAME
